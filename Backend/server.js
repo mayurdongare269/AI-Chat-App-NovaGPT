@@ -28,7 +28,7 @@ import cors from "cors";
 import { GoogleGenAI } from "@google/genai";
 import mongoose from "mongoose";
 
-import chatRoutes from "./routes.chat.js";
+import chatRoutes from "./routes/chat.js";
 
 const app = express();
 const PORT = 8080;
