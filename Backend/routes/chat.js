@@ -84,34 +84,36 @@ router.post("/chat", async(req, res) => {
     try {
         let thread = await Thread.findOne({threadId});
 
-
-
         if(!thread) {
-            //create a new thread(chat) in db...
             thread = new Thread({
                 threadId,
                 title: message,
-                messages: [{role: "user", content: message}]
+                message: [{ role: "user", content: message }] // ✅ singular
             });
         } else {
-            // FIX: ensure messages exists
-            if (!thread.messages) {
-                thread.messages = [];
+            if (!thread.message) {
+                thread.message = [];
             }
 
-            thread.messages.push({role: "user", content: message});
+            thread.message.push({ role: "user", content: message }); // ✅
         }
 
         const assistantReply = await getGeminiApiResponse(message);
-        thread.messages.push({role: "assistant", content: assistantReply});
+
+        thread.message.push({
+            role: "assistant",
+            content: assistantReply
+        });
+
         thread.updatedAt = new Date();
 
         await thread.save();
+
         res.json({reply: assistantReply});
 
     } catch(err) {
         console.log(err);
-        res.status(500).json({error: "something went wrong"} );
+        res.status(500).json({error: "something went wrong"});
     }
 });
 
