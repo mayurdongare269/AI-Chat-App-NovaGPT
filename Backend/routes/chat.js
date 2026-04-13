@@ -11,7 +11,7 @@ const router = express.Router();
 router.post("/test", async(req, res) => {
     try {
         const newThread = new Thread({
-            threadId: "xyz",
+            threadId: "abc",
             title: "thread testing"
         });
 
@@ -82,7 +82,9 @@ router.post("/chat", async(req, res) => {
     }
 
     try {
-        const thread = await Thread.findOne({threadId});
+        let thread = await Thread.findOne({threadId});
+
+
 
         if(!thread) {
             //create a new thread(chat) in db...
@@ -92,10 +94,15 @@ router.post("/chat", async(req, res) => {
                 messages: [{role: "user", content: message}]
             });
         } else {
+            // FIX: ensure messages exists
+            if (!thread.messages) {
+                thread.messages = [];
+            }
+
             thread.messages.push({role: "user", content: message});
         }
 
-        const assistantReply = getGeminiApiResponse(message);
+        const assistantReply = await getGeminiApiResponse(message);
         thread.messages.push({role: "assistant", content: assistantReply});
         thread.updatedAt = new Date();
 
